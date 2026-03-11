@@ -83,7 +83,7 @@ def generate_tile_from_gene(x, y, gene, output=False, past_ram=False):
 def generate_asc_config(genotype):
     asc = ""
     
-    with open("src/Circuit/DirectRouting/seed_hardware.asc", "r") as f:
+    with open("Circuit/DirectRouting/seed_hardware.asc", "r") as f:
         asc = f.read()
     
     def replace_tile(bitstream: str, x: int, y: int, new_content: str) -> str:

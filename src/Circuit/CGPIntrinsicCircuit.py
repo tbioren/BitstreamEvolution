@@ -41,7 +41,6 @@ class CGPIntrinsicCircuit(FileBasedCircuit):
         return self._fitness_func.get_measurements()
 
     def _calculate_fitness(self) -> float:
-        print("calcfitness")
         return self._fitness_func.calculate_fitness(self._data)
 
     def upload(self):
@@ -114,7 +113,7 @@ class CGPIntrinsicCircuit(FileBasedCircuit):
         prob = self._config.get_mutation_probability()
         with open(self._hardware_filepath, "rb") as f:
             bitstream = pickle.load(f)
-        num_bits = bitstream.dtype.itemsize * 8
+        num_bits = 28
         for i in range(len(bitstream)):
             for bit in range(num_bits):
                 if random.random() < prob:

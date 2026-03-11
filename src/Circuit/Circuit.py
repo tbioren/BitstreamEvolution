@@ -63,6 +63,7 @@ class Circuit(ABC):
         """
         Calculates and returns the fitness indicated by the Circuit's currently-collected data
         """
+        print("Calculating fitness...")
         self._fitness = self._calculate_fitness()
         self._update_all_live_data()
         return self._fitness
