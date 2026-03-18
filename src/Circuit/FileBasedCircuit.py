@@ -19,6 +19,12 @@ class FileBasedCircuit(Circuit):
     Provides useful methods for working with hardware files
     """
 
+    # Valid tile coordinate ranges for the ice40up5k hardware.
+    # TODO: Replace magic values with a more generalized solution (e.g. config file).
+    VALID_TILE_X = range(9, 18)
+    VALID_TILE_Y = range(28, 31)
+    INVALID_TILES = [(12, 30)]
+
     def __init__(self, index: int, filename: str, config: Config, template: Path, rand, logger: Logger):
         Circuit.__init__(self, index, filename, config)
 
@@ -77,7 +83,13 @@ class FileBasedCircuit(Circuit):
         rows = [row-1 for row in rows]
         columns = [int(column)-1 for column in self._config.get_accessed_columns()]
         mutation_chance = self._config.get_mutation_probability()
-        mutate(self._hardware_filepath, rows, columns, mutation_chance)
+        tiles = [
+            (x, y)
+            for x in self.VALID_TILE_X
+            for y in self.VALID_TILE_Y
+            if (x, y) not in self.INVALID_TILES
+        ]
+        mutate(self._hardware_filepath, rows, columns, mutation_chance, tiles)
 
     def randomize_bitstream(self):
         def randomize_bit(*rest):
@@ -246,13 +258,6 @@ class FileBasedCircuit(Circuit):
         bool
             True if the tile at that position is valid (The Tiles we can modigy)
         """
-        # Replace these magic values with a more generalized solution
-        # Magic values are indicative of the underlying hardware (ice40up5k)
-        # A different model will require different magic values (i.e. ice40hx8k)
-        VALID_TILE_X = range(9,31)
-        VALID_TILE_Y = range(28,31)
-        INVALID_TILES = [(12,30)]
-
         # NOTE x and y are stored as ints to aid the loops that search and identify
         # tiles while scraping the asc files
         # This is in the actual asc file; this is why we can simply pull from "pos"
@@ -272,10 +277,10 @@ class FileBasedCircuit(Circuit):
         y_str = y_bytes.decode("utf-8").strip()
         x = int(x_str)
         y = int(y_str)
-        is_x_valid = x in VALID_TILE_X
-        is_y_valid = y in VALID_TILE_Y
+        is_x_valid = x in self.VALID_TILE_X
+        is_y_valid = y in self.VALID_TILE_Y
 
-        return is_x_valid and is_y_valid and (x,y) not in INVALID_TILES
+        return is_x_valid and is_y_valid and (x, y) not in self.INVALID_TILES
 
     def get_hardware_file(self):
         return self._hardware_file
